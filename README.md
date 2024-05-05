@@ -40,6 +40,10 @@ brew install entr
 
 - Migrate to HTML templates instead of fully utilizing the Kotlin DSL to save CPU resources when constructing the page each time.
 
+## Sample usages
+
+- [Simple todo-list](https://github.com/MartinWie/Kotlin-HTMX-Todolist)
+
 ## Support me :heart: :star: :money_with_wings:
 If this project provided value, and you want to give something back, you can give the repo a star or support me, by tipping me a coffee.
 

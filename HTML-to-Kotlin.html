@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML to Kotlin DSL Translator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg p-6 space-y-6">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-blue-600">
+            HTML to Kotlin HTML DSL Translator
+        </h1>
+        <div class="space-y-3">
+            <h2 class="text-xl sm:text-2xl font-semibold">Input HTML</h2>
+            <textarea id="htmlInput" class="w-full h-48 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none font-mono text-sm placeholder-gray-400 transition duration-200" placeholder="Enter your HTML code here..."></textarea>
+        </div>
+        <div class="flex justify-center">
+            <button id="translateButton" type="button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 lg:py-3 lg:px-6 rounded shadow transform transition duration-300 ease-in-out hover:scale-105">
+                Translate
+            </button>
+        </div>
+        <div class="space-y-3">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl sm:text-2xl font-semibold">Kotlin HTML DSL Output</h2>
+                <button id="copyButton" type="button" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-2 rounded shadow transform transition duration-300 ease-in-out hover:scale-105">
+                    Copy
+                </button>
+            </div>
+            <pre id="kotlinOutput" class="w-full bg-gray-50 p-4 border border-gray-200 rounded-md overflow-auto font-mono text-sm text-gray-800 max-h-96 whitespace-pre-wrap">
+            </pre>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const translateButton = document.getElementById('translateButton');
+            const copyButton = document.getElementById('copyButton');
+            translateButton.addEventListener('click', translateHTML);
+            copyButton.addEventListener('click', copyToClipboard);
+        });
+
+        function translateHTML() {
+            const htmlInput = document.getElementById('htmlInput').value;
+            const kotlinOutput = document.getElementById('kotlinOutput');
+            kotlinOutput.textContent = ''; // Clear previous output
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlInput, 'text/html');
+                const body = doc.body;
+                let kotlinCode = '';
+
+                function traverse(node, depth) {
+                    const indent = '    '.repeat(depth);
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const tagName = node.tagName.toLowerCase();
+                        let attrs = '';
+                        for (let attr of node.attributes) {
+                            if (attr.name === 'class') {
+                                attrs += `${indent}    classes = setOf("${escapeString(attr.value)}")\n`;
+                            } else if (attr.name === 'for') {
+                                attrs += `${indent}    htmlFor = "${escapeString(attr.value)}"\n`;
+                            } else {
+                                attrs += `${indent}    ${attr.name} = "${escapeString(attr.value)}"\n`;
+                            }
+                        }
+                        const kotlinTag = mapTag(tagName);
+                        if (kotlinTag) {
+                            kotlinCode += `${indent}${kotlinTag} {\n`;
+                            kotlinCode += attrs;
+                            node.childNodes.forEach(child => traverse(child, depth + 1));
+                            kotlinCode += `${indent}}\n`;
+                        } else {
+                            kotlinCode += `${indent}generic("${tagName}") {\n`;
+                            kotlinCode += attrs;
+                            node.childNodes.forEach(child => traverse(child, depth + 1));
+                            kotlinCode += `${indent}}\n`;
+                        }
+                    } else if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent.trim();
+                        if (text) {
+                            kotlinCode += `${indent}+"${escapeString(text)}"\n`;
+                        }
+                    } else if (node.nodeType === Node.COMMENT_NODE) {
+                        const comment = node.textContent.trim();
+                        if (comment) {
+                            kotlinCode += `${indent}// ${escapeString(comment)}\n`;
+                        }
+                    }
+                }
+
+                function mapTag(tag) {
+                    const tagMapping = {
+                        'div': 'div',
+                        'span': 'span',
+                        'p': 'p',
+                        'h1': 'h1',
+                        'h2': 'h2',
+                        'h3': 'h3',
+                        'h4': 'h4',
+                        'h5': 'h5',
+                        'h6': 'h6',
+                        'a': 'a',
+                        'ul': 'ul',
+                        'li': 'li',
+                        'img': 'img',
+                        'button': 'button',
+                        'table': 'table',
+                        'tr': 'tr',
+                        'td': 'td',
+                        'th': 'th',
+                        'header': 'header',
+                        'footer': 'footer',
+                        'section': 'section',
+                        'article': 'article',
+                        'nav': 'nav',
+                        'main': 'main',
+                        'form': 'form',
+                        'input': 'input',
+                        'label': 'label',
+                        'textarea': 'textarea',
+                        'select': 'select',
+                        'option': 'option',
+                        'link': 'link',
+                        'script': 'script',
+                        'style': 'style',
+                        'alert': 'alert',
+                        'toast': 'toast',
+                    };
+                    return tagMapping[tag] || null;
+                }
+
+                function escapeString(str) {
+                    return str
+                        .replace(/\\/g, '\\\\')
+                        .replace(/"/g, '\\"')
+                        .replace(/\n/g, '\\n')
+                        .replace(/\r/g, '\\r')
+                        .replace(/\t/g, '\\t');
+                }
+
+                body.childNodes.forEach(child => traverse(child, 0));
+                kotlinOutput.textContent = kotlinCode.trim();
+            } catch (error) {
+                kotlinOutput.innerHTML = `<span class="text-red-600">Error translating HTML: ${escapeString(error.message)}</span>`;
+                console.error('Translation Error:', error);
+            }
+        }
+
+        function copyToClipboard() {
+            const kotlinOutput = document.getElementById('kotlinOutput');
+            const textToCopy = kotlinOutput.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy text:', err);
+            });
+        }
+    </script>
+</body>
+</html>

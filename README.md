@@ -44,6 +44,12 @@ brew install entr
 
 - [Simple todo-list](https://github.com/MartinWie/Kotlin-HTMX-Todolist)
 
+
+## Helper website to convert form HTML to Kotlin HTML DSL
+
+[HTML to Kotlin HTML DSL Converter](https://github.com/MartinWie/Kotlin-HTMX-Full-Stack-Template/blob/main/HTML-to-Kotlin.html)
+
+
 ## Support me :heart: :star: :money_with_wings:
 If this project provided value, and you want to give something back, you can give the repo a star or support me, by tipping me a coffee.
 

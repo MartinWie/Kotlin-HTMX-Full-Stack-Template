@@ -51,6 +51,17 @@ fun htmlBasePage(pageTitle: String, bodyTags: TagConsumer<StringBuilder>.() -> U
     }
 }
 
+/**
+ * Builds an HTML string using the provided builder action.
+ *
+ * @param builderAction The action to build the HTML content.
+ * @return The generated HTML string.
+ *
+ * Example usage:
+ * body {
+ *     h1 { +"Hello, World!" }
+ * }
+ */
 fun buildHTMLString(builderAction: TagConsumer<StringBuilder>.() -> Unit): String {
     return buildString {
         appendHTML().builderAction()

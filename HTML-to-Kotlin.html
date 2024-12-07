@@ -64,7 +64,7 @@
                                 attrs += `${indent}    ${attr.name} = "${escapeString(attr.value)}"\n`;
                             }
                         }
-                        const kotlinTag = mapTag(tagName);
+                        const kotlinTag = tagName;
                         if (kotlinTag) {
                             kotlinCode += `${indent}${kotlinTag} {\n`;
                             kotlinCode += attrs;
@@ -87,47 +87,6 @@
                             kotlinCode += `${indent}// ${escapeString(comment)}\n`;
                         }
                     }
-                }
-
-                function mapTag(tag) {
-                    const tagMapping = {
-                        'div': 'div',
-                        'span': 'span',
-                        'p': 'p',
-                        'h1': 'h1',
-                        'h2': 'h2',
-                        'h3': 'h3',
-                        'h4': 'h4',
-                        'h5': 'h5',
-                        'h6': 'h6',
-                        'a': 'a',
-                        'ul': 'ul',
-                        'li': 'li',
-                        'img': 'img',
-                        'button': 'button',
-                        'table': 'table',
-                        'tr': 'tr',
-                        'td': 'td',
-                        'th': 'th',
-                        'header': 'header',
-                        'footer': 'footer',
-                        'section': 'section',
-                        'article': 'article',
-                        'nav': 'nav',
-                        'main': 'main',
-                        'form': 'form',
-                        'input': 'input',
-                        'label': 'label',
-                        'textarea': 'textarea',
-                        'select': 'select',
-                        'option': 'option',
-                        'link': 'link',
-                        'script': 'script',
-                        'style': 'style',
-                        'alert': 'alert',
-                        'toast': 'toast',
-                    };
-                    return tagMapping[tag] || null;
                 }
 
                 function escapeString(str) {
